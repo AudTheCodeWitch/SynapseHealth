@@ -16,6 +16,9 @@ public partial class NoteParser : INoteParser
         ("wheelchair", "Wheelchair")
     ];
 
+    private static readonly List<string> CpapMaskTypes = ["full face"];
+    private static readonly List<string> CpapAddOns = ["humidifier"];
+
     /// <summary>
     /// Parses the physician's note by calling a series of specialized helper methods.
     /// </summary>
@@ -63,18 +66,25 @@ public partial class NoteParser : INoteParser
 
     private static void ParseCpapDetails(string noteText, OrderDetails details)
     {
-        if (noteText.Contains("full face", StringComparison.OrdinalIgnoreCase))
-        {
-            details.MaskType = "full face";
-        }
-        if (noteText.Contains("humidifier", StringComparison.OrdinalIgnoreCase))
+        details.MaskType = CpapMaskTypes
+            .FirstOrDefault(mask => noteText.Contains(mask, StringComparison.OrdinalIgnoreCase));
+
+        var foundAddOns = CpapAddOns
+            .Where(addOn => noteText.Contains(addOn, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (foundAddOns.Count != 0)
         {
             details.AddOns ??= [];
-            details.AddOns.Add("humidifier");
+            details.AddOns.AddRange(foundAddOns);
         }
-        if (noteText.Contains("AHI > 20"))
+        
+        var ahiMatch = AhiRegex().Match(noteText);
+        if (ahiMatch.Success)
         {
-            details.Qualifier = "AHI > 20";
+            var op = ahiMatch.Groups[1].Value;
+            var value = ahiMatch.Groups[2].Value;
+            details.Qualifier = op == ":" ? $"AHI: {value}" : $"AHI {op} {value}";
         }
     }
 
@@ -113,6 +123,9 @@ public partial class NoteParser : INoteParser
 
     [GeneratedRegex(@"Ordered by (Dr\. .*)", RegexOptions.IgnoreCase)]
     private static partial Regex OrderingProviderRegex();
+
+    [GeneratedRegex(@"AHI\s*(>|<|=|:)\s*(\d+)", RegexOptions.IgnoreCase)]
+    private static partial Regex AhiRegex();
 
     [GeneratedRegex(@"(\d+(\.\d+)?) ?L", RegexOptions.IgnoreCase)]
     private static partial Regex LiterRegex();
