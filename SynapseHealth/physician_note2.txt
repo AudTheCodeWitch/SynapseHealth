@@ -1,0 +1,3 @@
+{
+  "data": "Patient Name: Lisa Turner\nDOB: 09/23/1984\nDiagnosis: Severe sleep apnea\nRecommendation: CPAP therapy with full face mask and heated humidifier.\nAHI: 28\nOrdering Physician: Dr. Foreman\n"
+}

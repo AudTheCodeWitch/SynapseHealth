@@ -1,0 +1,6 @@
+Patient Name: Harold Finch
+DOB: 04/12/1952
+Diagnosis: COPD
+Prescription: Requires a portable oxygen tank delivering 2 L per minute.
+Usage: During sleep and exertion.
+Ordering Physician: Dr. Cuddy
