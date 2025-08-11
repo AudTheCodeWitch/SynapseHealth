@@ -56,7 +56,7 @@ namespace SynapseHealth
             var usageType = (string)null;
             if (device == "Oxygen Tank")
             {
-                Match literMatch = Regex.Match(noteText, "(\d+(\.\d+)?) ?L", RegexOptions.IgnoreCase);
+                Match literMatch = Regex.Match(noteText, @"(\d+(\.\d+)?) ?L", RegexOptions.IgnoreCase);
                 if (literMatch.Success) liters = literMatch.Groups[1].Value + " L";
 
                 if (noteText.Contains("sleep", StringComparison.OrdinalIgnoreCase) && noteText.Contains("exertion", StringComparison.OrdinalIgnoreCase)) usageType = "sleep and exertion";
