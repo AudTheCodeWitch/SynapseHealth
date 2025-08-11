@@ -1,12 +1,7 @@
-using System;
-using System.IO;
-using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 using System.Text.RegularExpressions;
-using Newtonsoft.Json.Linq;
 
-namespace Synapse.SignalBoosterExample
+namespace SynapseHealth
 {
     /// <summary>
     /// Handles quantum flux state propagation from physician records.
