@@ -1,4 +1,5 @@
-using SynapseHealth.Core.Models;
+using Microsoft.Extensions.Logging;
+using Moq;
 using SynapseHealth.Core.Services;
 
 namespace SynapseHealth.Tests.Services;
@@ -6,12 +7,14 @@ namespace SynapseHealth.Tests.Services;
 [TestClass]
 public class NoteParserTests
 {
-    private INoteParser _parser = null!;
+    private NoteParser _parser = null!;
+    private Mock<ILogger<NoteParser>> _mockLogger = null!;
 
     [TestInitialize]
     public void Setup()
     {
-        _parser = new NoteParser();
+        _mockLogger = new Mock<ILogger<NoteParser>>();
+        _parser = new NoteParser(_mockLogger.Object);
     }
 
     [TestMethod]
@@ -161,6 +164,11 @@ public class NoteParserTests
         Assert.IsNull(result.MaskType);
         Assert.IsNull(result.Usage);
         Assert.IsNull(result.AddOns);
+
+        VerifyLog(LogLevel.Warning, "Could not extract Patient Name.");
+        VerifyLog(LogLevel.Warning, "Could not extract Date of Birth.");
+        VerifyLog(LogLevel.Warning, "Could not extract Diagnosis.");
+        VerifyLog(LogLevel.Warning, "Could not extract Ordering Provider.");
     }
 
     [TestMethod]
@@ -175,6 +183,8 @@ public class NoteParserTests
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual("Unknown", result.Device);
+
+        VerifyLog(LogLevel.Warning, "Could not determine device from note. Using default: Unknown");
     }
 
     [TestMethod]
@@ -189,5 +199,17 @@ public class NoteParserTests
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual("CPAP", result.Device); // "CPAP" appears before "oxygen" in DeviceMappings
+    }
+
+    private void VerifyLog(LogLevel level, string message)
+    {
+        _mockLogger.Verify(
+            x => x.Log(
+                level,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(message)),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
     }
 }

@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
 using SynapseHealth.Core.Models;
 
 namespace SynapseHealth.Core.Services;
@@ -9,6 +10,8 @@ namespace SynapseHealth.Core.Services;
 /// </summary>
 public partial class NoteParser : INoteParser
 {
+    private readonly ILogger<NoteParser> _logger;
+
     private static readonly List<(string Keyword, string DeviceName)> DeviceMappings =
     [
         ("CPAP", "CPAP"),
@@ -20,12 +23,22 @@ public partial class NoteParser : INoteParser
     private static readonly List<string> CpapAddOns = ["humidifier"];
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="NoteParser"/> class.
+    /// </summary>
+    /// <param name="logger">The logger to use for logging information and warnings.</param>
+    public NoteParser(ILogger<NoteParser> logger)
+    {
+        _logger = logger;
+    }
+
+    /// <summary>
     /// Parses the physician's note by calling a series of specialized helper methods.
     /// </summary>
     /// <param name="noteText">The raw text from the physician's note.</param>
     /// <returns>A populated <see cref="OrderDetails"/> object.</returns>
     public OrderDetails Parse(string noteText)
     {
+        _logger.LogInformation("Starting note parsing.");
         var orderDetails = new OrderDetails();
 
         ParseDevice(noteText, orderDetails);
@@ -42,26 +55,35 @@ public partial class NoteParser : INoteParser
                 break;
         }
 
+        _logger.LogInformation("Note parsing complete.");
         return orderDetails;
     }
 
-    private static void ParseDevice(string noteText, OrderDetails details)
+    private void ParseDevice(string noteText, OrderDetails details)
     {
-        details.Device = DeviceMappings
+        var deviceName = DeviceMappings
             .FirstOrDefault(mapping => noteText.Contains(mapping.Keyword, StringComparison.OrdinalIgnoreCase))
-            .DeviceName ?? details.Device;
+            .DeviceName;
+
+        if (deviceName is null)
+        {
+            _logger.LogWarning("Could not determine device from note. Using default: {DefaultDevice}", details.Device);
+            return;
+        }
+
+        details.Device = deviceName;
     }
 
-    private static void ParsePatientInfo(string noteText, OrderDetails details)
+    private void ParsePatientInfo(string noteText, OrderDetails details)
     {
-        details.PatientName = ExtractInfo(noteText, PatientNameRegex()) ?? details.PatientName;
-        details.DateOfBirth = ExtractInfo(noteText, DobRegex()) ?? details.DateOfBirth;
-        details.Diagnosis = ExtractInfo(noteText, DiagnosisRegex()) ?? details.Diagnosis;
+        details.PatientName = ExtractInfo(noteText, PatientNameRegex(), "Patient Name") ?? details.PatientName;
+        details.DateOfBirth = ExtractInfo(noteText, DobRegex(), "Date of Birth") ?? details.DateOfBirth;
+        details.Diagnosis = ExtractInfo(noteText, DiagnosisRegex(), "Diagnosis") ?? details.Diagnosis;
     }
 
-    private static void ParseOrderingProvider(string noteText, OrderDetails details)
+    private void ParseOrderingProvider(string noteText, OrderDetails details)
     {
-        details.OrderingProvider = ExtractInfo(noteText, OrderingProviderRegex()) ?? details.OrderingProvider;
+        details.OrderingProvider = ExtractInfo(noteText, OrderingProviderRegex(), "Ordering Provider") ?? details.OrderingProvider;
     }
 
     private static void ParseCpapDetails(string noteText, OrderDetails details)
@@ -78,7 +100,7 @@ public partial class NoteParser : INoteParser
             details.AddOns ??= [];
             details.AddOns.AddRange(foundAddOns);
         }
-        
+
         var ahiMatch = AhiRegex().Match(noteText);
         if (ahiMatch.Success)
         {
@@ -106,7 +128,7 @@ public partial class NoteParser : INoteParser
             usageTypes.Add("exertion");
         }
 
-        if (usageTypes.Count != 0)
+        if (usageTypes.Any())
         {
             details.Usage = string.Join(" and ", usageTypes);
         }
@@ -130,9 +152,15 @@ public partial class NoteParser : INoteParser
     [GeneratedRegex(@"(\d+(\.\d+)?) ?L", RegexOptions.IgnoreCase)]
     private static partial Regex LiterRegex();
 
-    private static string? ExtractInfo(string text, Regex regex)
+    private string? ExtractInfo(string text, Regex regex, string fieldName)
     {
         var match = regex.Match(text);
-        return match.Success ? match.Groups[1].Value.Trim() : null;
+        if (match.Success)
+        {
+            return match.Groups[1].Value.Trim();
+        }
+
+        _logger.LogWarning("Could not extract {FieldName}.", fieldName);
+        return null;
     }
 }
