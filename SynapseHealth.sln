@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SynapseHealth", "SynapseHea
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SynapseHealth.Core", "SynapseHealth.Core\SynapseHealth.Core.csproj", "{BF08B057-5A51-4290-B4E9-38D9964B659C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SynapseHealth.Tests", "SynapseHealth.Tests\SynapseHealth.Tests.csproj", "{2D377042-9F77-4F8B-BA0C-02A96A99CC9C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SynapseHealth.Tests", "SynapseHealth.Tests\SynapseHealth.Tests.csproj", "{1FE1036A-8BC9-444A-B8FA-69A00773D0ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,9 +20,9 @@ Global
 		{BF08B057-5A51-4290-B4E9-38D9964B659C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF08B057-5A51-4290-B4E9-38D9964B659C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF08B057-5A51-4290-B4E9-38D9964B659C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2D377042-9F77-4F8B-BA0C-02A96A99CC9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2D377042-9F77-4F8B-BA0C-02A96A99CC9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2D377042-9F77-4F8B-BA0C-02A96A99CC9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2D377042-9F77-4F8B-BA0C-02A96A99CC9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FE1036A-8BC9-444A-B8FA-69A00773D0ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FE1036A-8BC9-444A-B8FA-69A00773D0ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FE1036A-8BC9-444A-B8FA-69A00773D0ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FE1036A-8BC9-444A-B8FA-69A00773D0ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
