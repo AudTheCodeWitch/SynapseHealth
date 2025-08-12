@@ -48,7 +48,7 @@ namespace SynapseHealth
 
             if (args.Length == 0)
             {
-                logger.LogError("Please provide the path to the physician's note file as a command-line argument.");
+                await LogAndWriteErrorAsync(logger, "Please provide the path to the physician's note file as a command-line argument.");
                 return 1;
             }
 
@@ -71,7 +71,7 @@ namespace SynapseHealth
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error reading the note file from {FilePath}", filePath);
+                await LogAndWriteErrorAsync(logger, $"Could not read the note file '{filePath}'.", ex);
                 return 1;
             }
 
@@ -85,32 +85,32 @@ namespace SynapseHealth
             }
             catch (ArgumentException ex)
             {
-                logger.LogError(ex, "Invalid input: {Message}", ex.Message);
+                await LogAndWriteErrorAsync(logger, ex.Message, ex);
                 return 1;
             }
             catch (RegexMatchTimeoutException ex)
             {
-                logger.LogError(ex, "Regex operation timed out during note parsing.");
+                await LogAndWriteErrorAsync(logger, "Regex operation timed out during note parsing.", ex);
                 return 2;
             }
             catch (System.Text.Json.JsonException ex)
             {
-                logger.LogError(ex, "JSON serialization error during order submission: {Message}", ex.Message);
+                await LogAndWriteErrorAsync(logger, "JSON serialization error during order submission.", ex);
                 return 3;
             }
             catch (TaskCanceledException ex)
             {
-                logger.LogError(ex, "HTTP request was canceled or timed out during order submission: {Message}", ex.Message);
+                await LogAndWriteErrorAsync(logger, "HTTP request was canceled or timed out during order submission.", ex);
                 return 4;
             }
             catch (HttpRequestException ex)
             {
-                logger.LogError(ex, "HTTP error occurred during order submission: {Message}", ex.Message);
+                await LogAndWriteErrorAsync(logger, "HTTP error occurred during order submission.", ex);
                 return 5;
             }
             catch (Exception ex)
             {
-                logger.LogCritical(ex, "An unhandled exception occurred during the submission process.");
+                await LogAndWriteErrorAsync(logger, "An unexpected error occurred during the submission process.", ex, LogLevel.Critical);
                 return 6;
             }
 
@@ -137,6 +137,15 @@ namespace SynapseHealth
 
             services.AddSingleton<IJsonSerializer, NewtonsoftJsonSerializer>();
             services.AddSingleton<INoteParser, NoteParser>();
+        }
+
+        private static async Task LogAndWriteErrorAsync(ILogger logger, string message, Exception? ex = null, LogLevel logLevel = LogLevel.Error)
+        {
+            await Console.Error.WriteLineAsync($"Error: {message}");
+            if (ex != null)
+                logger.Log(logLevel, ex, "{ErrorMessage}", message);
+            else
+                logger.Log(logLevel, "{ErrorMessage}", message);
         }
     }
 }
