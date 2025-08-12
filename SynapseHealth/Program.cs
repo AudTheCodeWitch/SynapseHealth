@@ -55,11 +55,19 @@ namespace SynapseHealth
                 return 1;
             }
 
-            var noteParser = serviceProvider.GetRequiredService<INoteParser>();
-            var orderDetails = noteParser.Parse(noteText);
+            try
+            {
+                var noteParser = serviceProvider.GetRequiredService<INoteParser>();
+                var orderDetails = noteParser.Parse(noteText);
 
-            var submissionService = serviceProvider.GetRequiredService<IOrderSubmissionService>();
-            await submissionService.SubmitOrderAsync(orderDetails);
+                var submissionService = serviceProvider.GetRequiredService<IOrderSubmissionService>();
+                await submissionService.SubmitOrderAsync(orderDetails);
+            }
+            catch (Exception ex)
+            {
+                logger.LogCritical(ex, "An unhandled exception occurred during the submission process.");
+                return 1; // Return a non-zero exit code to indicate failure
+            }
 
             logger.LogInformation("Application finished.");
 
