@@ -118,8 +118,8 @@ public class NoteParserTests
         }
 
         [DataTestMethod]
-        [DataRow("CPAP with full face mask.", "full face", null, "", DisplayName = "CPAP with mask only")]
-        [DataRow("CPAP with heated humidifier.", null, "humidifier", "", DisplayName = "CPAP with add-on only")]
+        [DataRow("CPAP with full face mask.", "full face", null, null, DisplayName = "CPAP with mask only")]
+        [DataRow("CPAP with heated humidifier.", null, "humidifier", null, DisplayName = "CPAP with add-on only")]
         [DataRow("CPAP with AHI: 28", null, null, "AHI: 28", DisplayName = "CPAP with AHI: 28 qualifier")]
         [DataRow("CPAP with AHI = 28", null, null, "AHI = 28", DisplayName = "CPAP with AHI = 28 qualifier")]
         [DataRow("CPAP with AHI > 28", null, null, "AHI > 28", DisplayName = "CPAP with AHI > 28 qualifier")]
@@ -180,7 +180,7 @@ public class NoteParserTests
             Assert.AreEqual("Unknown", result.DateOfBirth);
             Assert.AreEqual("Unknown", result.Diagnosis);
             Assert.AreEqual("Unknown", result.OrderingProvider);
-            Assert.AreEqual(string.Empty, result.Qualifier);
+            Assert.IsNull(result.Qualifier);
             Assert.IsNull(result.Liters);
             Assert.IsNull(result.MaskType);
             Assert.IsNull(result.Usage);
