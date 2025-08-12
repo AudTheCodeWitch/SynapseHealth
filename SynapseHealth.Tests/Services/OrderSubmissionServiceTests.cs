@@ -5,6 +5,7 @@ using Moq;
 using Moq.Protected;
 using Newtonsoft.Json;
 using SynapseHealth.Core.Models;
+using SynapseHealth.Core.Serializers;
 using SynapseHealth.Core.Services;
 
 namespace SynapseHealth.Tests.Services;
