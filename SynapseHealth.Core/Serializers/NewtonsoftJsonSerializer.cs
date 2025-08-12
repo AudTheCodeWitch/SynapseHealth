@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
-using SynapseHealth.Core.Services;
+using SynapseHealth.Core.Serializers;
 
-namespace SynapseHealth.Infrastructure.Services
+namespace SynapseHealth.Core.Serializers
 {
     /// <summary>
     /// An implementation of <see cref="IJsonSerializer"/> that uses the Newtonsoft.Json library.

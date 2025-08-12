@@ -1,13 +1,10 @@
-using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SynapseHealth.Core.Models;
 using SynapseHealth.Core.Services;
-using System.Text.RegularExpressions;
-using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Options;
-using SynapseHealth.Infrastructure.Services;
+using SynapseHealth.Core.Serializers;
 
 namespace SynapseHealth
 {

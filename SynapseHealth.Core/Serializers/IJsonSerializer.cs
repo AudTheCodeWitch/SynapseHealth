@@ -1,4 +1,4 @@
-namespace SynapseHealth.Core.Services
+namespace SynapseHealth.Core.Serializers
 {
     /// <summary>
     /// Defines a contract for a JSON serializer.

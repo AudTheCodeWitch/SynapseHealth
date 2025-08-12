@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SynapseHealth.Core.Models;
+using SynapseHealth.Core.Serializers;
 
 namespace SynapseHealth.Core.Services
 {
