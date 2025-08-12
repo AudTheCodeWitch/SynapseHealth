@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using SynapseHealth.Core.Models;
 
 namespace SynapseHealth.Core.Services
