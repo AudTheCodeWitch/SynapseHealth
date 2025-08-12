@@ -143,7 +143,7 @@ public partial class NoteParser : INoteParser
     [GeneratedRegex(@"Diagnosis: (.*)", RegexOptions.IgnoreCase)]
     private static partial Regex DiagnosisRegex();
 
-    [GeneratedRegex(@"Ordered by (Dr\. .*)", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"(?:Ordered by|Ordering Physician:)\s*(Dr\. .*)", RegexOptions.IgnoreCase)]
     private static partial Regex OrderingProviderRegex();
 
     [GeneratedRegex(@"AHI\s*(>|<|=|:)\s*(\d+)", RegexOptions.IgnoreCase)]
