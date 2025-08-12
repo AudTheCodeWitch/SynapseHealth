@@ -31,7 +31,7 @@ namespace SynapseHealth.Core.Models
         [JsonProperty("patient_name", NullValueHandling = NullValueHandling.Ignore)]
         public string PatientName { get; set; } = "Unknown";
 
-        [JsonProperty("qualifier")]
+        [JsonProperty("qualifier", NullValueHandling = NullValueHandling.Ignore)]
         public string? Qualifier { get; set; }
 
         [JsonProperty("usage", NullValueHandling = NullValueHandling.Ignore)]
