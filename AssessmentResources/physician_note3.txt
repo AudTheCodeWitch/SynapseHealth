@@ -1,0 +1,6 @@
+Patient Name: Sarah Miller
+DOB: 03/15/1960
+Diagnosis: Arthritis
+Prescription: Patient requires a walker for daily mobility.
+Ordered by Dr. Adams
+

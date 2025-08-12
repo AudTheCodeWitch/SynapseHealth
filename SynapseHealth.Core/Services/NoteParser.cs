@@ -16,11 +16,16 @@ public partial class NoteParser : INoteParser
     [
         ("CPAP", "CPAP"),
         ("oxygen", "Oxygen Tank"),
-        ("wheelchair", "Wheelchair")
+        ("wheelchair", "Wheelchair"),
+        ("walker", "Walking Aid"),
+        ("cane", "Walking Aid"),
+        ("crutches", "Walking Aid"),
+        ("knee scooter", "Walking Aid"),
     ];
 
     private static readonly List<string> CpapMaskTypes = ["full face"];
     private static readonly List<string> CpapAddOns = ["humidifier"];
+    private static readonly List<string> WalkingAidTypes = ["walker", "cane", "crutches", "knee scooter"];
 
     /// <summary>
     /// Initializes a new instance of the <see cref="NoteParser"/> class.
@@ -60,6 +65,9 @@ public partial class NoteParser : INoteParser
                     break;
                 case "Oxygen Tank":
                     ParseOxygenDetails(noteText, orderDetails);
+                    break;
+                case "Walking Aid":
+                    ParseWalkingAidDetails(noteText, orderDetails);
                     break;
             }
 
@@ -150,6 +158,21 @@ public partial class NoteParser : INoteParser
         if (usageTypes.Any())
         {
             details.Usage = string.Join(" and ", usageTypes);
+        }
+    }
+
+    private static void ParseWalkingAidDetails(string noteText, OrderDetails details)
+    {
+        details.MaskType = null;
+        details.Liters = null;
+        details.Usage = null;
+        details.AddOns = null;
+        details.Qualifier = null;
+
+        var aidType = WalkingAidTypes.FirstOrDefault(type => noteText.Contains(type, StringComparison.OrdinalIgnoreCase));
+        if (aidType != null)
+        {
+            details.Qualifier = $"Type: {aidType}";
         }
     }
 

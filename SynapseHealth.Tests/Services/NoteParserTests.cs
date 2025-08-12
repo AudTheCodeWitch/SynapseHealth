@@ -147,6 +147,23 @@ public class NoteParserTests
             }
         }
 
+        [DataTestMethod]
+        [DataRow("Patient requires a walker for mobility.", "Walking Aid", "Type: walker")]
+        [DataRow("Patient needs a cane due to injury.", "Walking Aid", "Type: cane")]
+        [DataRow("Crutches prescribed for recovery.", "Walking Aid", "Type: crutches")]
+        [DataRow("Knee scooter recommended for post-op mobility.", "Walking Aid", "Type: knee scooter")]
+        [DataRow("Patient needs a walker and a cane.", "Walking Aid", "Type: walker")]
+        public void Should_CorrectlyParseWalkingAidNotes(string noteText, string expectedDevice, string expectedQualifier)
+        {
+            // Act
+            var result = _parser.Parse(noteText);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expectedDevice, result.Device);
+            Assert.AreEqual(expectedQualifier, result.Qualifier);
+        }
+
         [TestMethod]
         public void Should_UseDefaultValues_WhenNoteIsMinimal()
         {
