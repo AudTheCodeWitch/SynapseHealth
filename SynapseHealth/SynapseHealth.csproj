@@ -8,17 +8,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <None Remove="physician_note2.txt" />
-      <Content Include="physician_note2.txt">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <None Remove="physician_note1.txt" />
-      <Content Include="physician_note1.txt">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.8" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.8" />
@@ -31,10 +20,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\SynapseHealth.Core\SynapseHealth.Core.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Compile Remove="OriginalProgram.cs" />
     </ItemGroup>
 
     <ItemGroup>
