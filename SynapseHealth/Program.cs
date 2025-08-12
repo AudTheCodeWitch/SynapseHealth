@@ -9,11 +9,18 @@ using SynapseHealth.Core.Serializers;
 namespace SynapseHealth
 {
     /// <summary>
-    /// Handles quantum flux state propagation from physician records.
+    /// Processes physician's notes to extract medical equipment orders and submits them to an API.
     /// </summary>
-    class Program
+    internal static class Program
     {
-        static async Task<int> Main(string[] args)
+        /// <summary>
+        /// The main entry point for the application. It sets up configuration, dependency injection,
+        /// reads the physician's note from a file specified in the command-line arguments,
+        /// parses the note to extract order details, and submits the order to the API.
+        /// </summary>
+        /// <param name="args">Command-line arguments, expecting the path to the physician's note file.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the exit code.</returns>
+        private static async Task<int> Main(string[] args)
         {
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -33,7 +40,7 @@ namespace SynapseHealth
             string noteText;
             try
             {
-                noteText = File.ReadAllText(args[0]);
+                noteText = await File.ReadAllTextAsync(args[0]);
             }
             catch (Exception ex)
             {
@@ -50,6 +57,11 @@ namespace SynapseHealth
             return 0;
         }
 
+        /// <summary>
+        /// Configures the application's services for dependency injection.
+        /// </summary>
+        /// <param name="services">The collection of services to configure.</param>
+        /// <param name="configuration">The application's configuration.</param>
         private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
             services.AddLogging(builder => builder.AddConsole());
