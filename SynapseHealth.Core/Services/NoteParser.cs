@@ -38,25 +38,44 @@ public partial class NoteParser : INoteParser
     /// <returns>A populated <see cref="OrderDetails"/> object.</returns>
     public OrderDetails Parse(string noteText)
     {
-        _logger.LogInformation("Starting note parsing.");
-        var orderDetails = new OrderDetails();
-
-        ParseDevice(noteText, orderDetails);
-        ParsePatientInfo(noteText, orderDetails);
-        ParseOrderingProvider(noteText, orderDetails);
-
-        switch (orderDetails.Device)
+        if (string.IsNullOrWhiteSpace(noteText))
         {
-            case "CPAP":
-                ParseCpapDetails(noteText, orderDetails);
-                break;
-            case "Oxygen Tank":
-                ParseOxygenDetails(noteText, orderDetails);
-                break;
+            _logger.LogError("Input note text is null or empty.");
+            throw new ArgumentException("Note text cannot be null or empty.", nameof(noteText));
         }
 
-        _logger.LogInformation("Note parsing complete.");
-        return orderDetails;
+        try
+        {
+            _logger.LogInformation("Starting note parsing.");
+            var orderDetails = new OrderDetails();
+
+            ParseDevice(noteText, orderDetails);
+            ParsePatientInfo(noteText, orderDetails);
+            ParseOrderingProvider(noteText, orderDetails);
+
+            switch (orderDetails.Device)
+            {
+                case "CPAP":
+                    ParseCpapDetails(noteText, orderDetails);
+                    break;
+                case "Oxygen Tank":
+                    ParseOxygenDetails(noteText, orderDetails);
+                    break;
+            }
+
+            _logger.LogInformation("Note parsing complete.");
+            return orderDetails;
+        }
+        catch (RegexMatchTimeoutException ex)
+        {
+            _logger.LogError(ex, "Regex operation timed out during note parsing.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error during note parsing.");
+            throw;
+        }
     }
 
     private void ParseDevice(string noteText, OrderDetails details)
@@ -154,10 +173,23 @@ public partial class NoteParser : INoteParser
 
     private string? ExtractInfo(string text, Regex regex, string fieldName)
     {
-        var match = regex.Match(text);
-        if (match.Success)
+        try
         {
-            return match.Groups[1].Value.Trim();
+            var match = regex.Match(text);
+            if (match.Success)
+            {
+                return match.Groups[1].Value.Trim();
+            }
+        }
+        catch (RegexMatchTimeoutException ex)
+        {
+            _logger.LogError(ex, "Regex operation timed out while extracting {FieldName}.", fieldName);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error while extracting {FieldName}.", fieldName);
+            throw;
         }
 
         _logger.LogWarning("Could not extract {FieldName}.", fieldName);
