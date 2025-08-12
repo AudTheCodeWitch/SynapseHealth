@@ -47,7 +47,16 @@ namespace SynapseHealth
             string noteText;
             try
             {
-                noteText = await File.ReadAllTextAsync(filePath);
+                var fileContent = await File.ReadAllTextAsync(filePath);
+                if (filePath.EndsWith(".json", StringComparison.OrdinalIgnoreCase) || fileContent.TrimStart().StartsWith("{"))
+                {
+                    var jsonDoc = System.Text.Json.JsonDocument.Parse(fileContent);
+                    noteText = jsonDoc.RootElement.GetProperty("data").GetString() ?? string.Empty;
+                }
+                else
+                {
+                    noteText = fileContent;
+                }
             }
             catch (Exception ex)
             {
