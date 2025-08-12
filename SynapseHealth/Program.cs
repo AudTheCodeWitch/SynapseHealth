@@ -11,7 +11,7 @@ namespace SynapseHealth
     /// <summary>
     /// Processes physician's notes to extract medical equipment orders and submits them to an API.
     /// </summary>
-    internal static class Program
+    internal class Program
     {
         /// <summary>
         /// The main entry point for the application. It sets up configuration, dependency injection,
@@ -31,20 +31,27 @@ namespace SynapseHealth
             ConfigureServices(services, configuration);
             await using var serviceProvider = services.BuildServiceProvider();
 
+            var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+
+            logger.LogInformation("Application starting.");
+
             if (args.Length == 0)
             {
-                Console.WriteLine("Please provide the path to the physician's note file as a command-line argument.");
+                logger.LogError("Please provide the path to the physician's note file as a command-line argument.");
                 return 1;
             }
+
+            var filePath = args[0];
+            logger.LogInformation("Reading physician's note from {FilePath}", filePath);
 
             string noteText;
             try
             {
-                noteText = await File.ReadAllTextAsync(args[0]);
+                noteText = await File.ReadAllTextAsync(filePath);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error reading the note file: {ex.Message}");
+                logger.LogError(ex, "Error reading the note file from {FilePath}", filePath);
                 return 1;
             }
 
@@ -53,6 +60,8 @@ namespace SynapseHealth
 
             var submissionService = serviceProvider.GetRequiredService<IOrderSubmissionService>();
             await submissionService.SubmitOrderAsync(orderDetails);
+
+            logger.LogInformation("Application finished.");
 
             return 0;
         }
