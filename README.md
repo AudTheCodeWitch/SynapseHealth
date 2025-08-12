@@ -20,10 +20,10 @@ This project is a C# console application designed to parse physician's notes, ex
 To run the application, you need to provide the path to a physician's note file as a command-line argument.
 
 ```bash
-dotnet run --project SynapseHealth/SynapseHealth.csproj -- physician_note1.txt
+dotnet run --project SynapseHealth/SynapseHealth.csproj -- AssessmentResources/physician_note1.txt
 ```
 
-You can also use `physician_note2.txt` for a different example.
+You can also use the other three physician notes in that directory, or supply one of your own!
 
 ## Configuration
 The application uses an `appsettings.json` file for configuration. You can specify the API endpoint and other settings in this file. The default configuration is as follows:
@@ -50,14 +50,6 @@ The application returns the following exit codes to indicate the result:
 | 4    | HTTP request was canceled or timed out during order submission |
 | 5    | HTTP error occurred during order submission                    |
 | 6    | Unhandled exception during submission process                  |
-
-## Running Tests
-
-To run the unit tests for the project:
-
-```bash
-dotnet test
-```
 
 ## Test Coverage
 
@@ -118,15 +110,22 @@ dotnet test
 ## Assessment Benchmarks
 
 ### Core Requirements
-[] **Refactor logic into well-named, testable methods:** Logic is separated into services and helper methods with clear naming and structure.
-[] **Introduce logging and basic error handling:** Logging is implemented throughout, and all major error scenarios are handled gracefully.
-[] **Write at least one unit test:** Comprehensive unit tests exist for parsing, submission, and serialization logic.
-[] **Replace misleading or unclear comments with helpful ones:** Comments and XML documentation are clear and accurate.
-[] **Keep it functional:** The application reads a physician note from a file, extracts structured data, and POSTs to the API endpoint.
+✅ **Refactor logic into well-named, testable methods:** Logic is separated into services and helper methods with clear naming and structure.
+
+✅ **Introduce logging and basic error handling:** Logging is implemented throughout, and all major error scenarios are handled gracefully.
+
+✅ **Write at least one unit test:** Comprehensive unit tests exist for parsing, submission, and serialization logic.
+
+✅ **Replace misleading or unclear comments with helpful ones:** Comments and XML documentation are clear and accurate.
+
+✅ **Keep it functional:** The application reads a physician note from a file, extracts structured data, and POSTs to the API endpoint.
 
 ### Stretch Goals
-[x] **Accept multiple input formats (e.g., JSON-wrapped notes):** Both plain text and JSON-wrapped notes are supported.
-[x] **Add configurability for file path or API endpoint:** File path is a CLI argument; API endpoint is configurable via appsettings.json.
-[x] **Support more DME device types or qualifiers:** CPAP, Oxygen Tank, Wheelchair, and Walking Aid (walker, cane, crutches, knee scooter) are supported.
-[ ] **Replace manual extraction logic with an LLM:**
+✅ **Accept multiple input formats (e.g., JSON-wrapped notes):** Both plain text and JSON-wrapped notes are supported.
+
+✅ **Add configurability for file path or API endpoint:** File path is a CLI argument; API endpoint is configurable via appsettings.json.
+
+✅ **Support more DME device types or qualifiers:** CPAP, Oxygen Tank, Wheelchair, and Walking Aid (walker, cane, crutches, knee scooter) are supported.
+
+❌ **Replace manual extraction logic with an LLM:**
 
