@@ -1,10 +1,6 @@
-using System;
-using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using SynapseHealth.Core.Models;
 
 namespace SynapseHealth.Core.Services
@@ -15,10 +11,15 @@ namespace SynapseHealth.Core.Services
     /// </summary>
     /// <param name="logger">The logger for recording submission status and errors.</param>
     /// <param name="httpClient">The HttpClient instance used for making API requests.</param>
-    /// <param name="apiSettings">The configuration options containing the API endpoint URL.</param>
-    public class OrderSubmissionService(ILogger<OrderSubmissionService> logger, HttpClient httpClient, IOptions<OrderApiSettings> apiSettings) : IOrderSubmissionService
+    /// <param name="apiSettings">The configuration options containing the API Base URL and endpoint path.</param>
+    /// <param name="jsonSerializer">The serializer to use for converting the order details to JSON.</param>
+    public class OrderSubmissionService(
+        ILogger<OrderSubmissionService> logger,
+        HttpClient httpClient,
+        IOptions<OrderApiSettings> apiSettings,
+        IJsonSerializer jsonSerializer) : IOrderSubmissionService
     {
-        private readonly string _apiEndpoint = apiSettings.Value.EndpointUrl;
+        private readonly string _endpointPath = apiSettings.Value.EndpointPath;
 
         /// <summary>
         /// Serializes the order details to JSON and POSTs them to the configured API endpoint.
@@ -30,11 +31,12 @@ namespace SynapseHealth.Core.Services
         {
             try
             {
-                var json = JsonConvert.SerializeObject(orderDetails);
+                var json = jsonSerializer.Serialize(orderDetails);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                logger.LogInformation("Submitting order to {ApiEndpoint}", _apiEndpoint);
-                var response = await httpClient.PostAsync(_apiEndpoint, content);
+                var fullRequestUri = new Uri(httpClient.BaseAddress!, _endpointPath);
+                logger.LogInformation("Submitting order to {FullRequestUri}", fullRequestUri);
+                var response = await httpClient.PostAsync(_endpointPath, content);
 
                 if (response.IsSuccessStatusCode)
                 {
