@@ -47,15 +47,8 @@ namespace SynapseHealth
             var noteParser = serviceProvider.GetRequiredService<INoteParser>();
             var orderDetails = noteParser.Parse(noteText);
 
-            // This block is now replaced by the OrderSubmissionService
-            var resultJson = System.Text.Json.JsonSerializer.Serialize(orderDetails);
-
-            using (var client = new HttpClient())
-            {
-                var endpointUrl = "https://alert-api.com/DrExtract";
-                var payload = new StringContent(resultJson, Encoding.UTF8, "application/json");
-                var response = client.PostAsync(endpointUrl, payload).GetAwaiter().GetResult();
-            }
+            var submissionService = serviceProvider.GetRequiredService<IOrderSubmissionService>();
+            await submissionService.SubmitOrderAsync(orderDetails);
 
             return 0;
         }
