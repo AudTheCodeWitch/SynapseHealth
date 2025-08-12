@@ -10,27 +10,34 @@ using SynapseHealth.Core.Serializers;
 namespace SynapseHealth
 {
     /// <summary>
-    /// Processes physician's notes to extract medical equipment orders and submits them to an API.
+    /// Entry point and orchestration for the SynapseHealth CLI application.
+    /// This program reads a physician's note from a file, parses it into structured order details,
+    /// validates configuration, and submits the order to an external API. It provides robust error handling,
+    /// user feedback, and logging for troubleshooting and operational monitoring.
     /// </summary>
     internal class Program
     {
         /// <summary>
-        /// The main entry point for the application. It sets up configuration, dependency injection,
-        /// reads the physician's note from a file specified in the command-line arguments,
-        /// parses the note to extract order details, and submits the order to the API.
+        /// Main application logic:
+        /// - Loads configuration and sets up dependency injection.
+        /// - Validates command-line arguments and input file existence.
+        /// - Reads and parses the physician's note.
+        /// - Validates required API configuration values.
+        /// - Submits the parsed order details to the API.
+        /// - Handles and logs all expected error scenarios, providing user-friendly console output and exit codes.
         /// </summary>
-        /// <param name="args">Command-line arguments, expecting the path to the physician's note file.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the exit code.</returns>
-        /// <summary>
+        /// <param name="args">Command-line arguments. Expects a single argument: the path to the physician's note file.</param>
+        /// <returns>Exit code indicating the result (see below).</returns>
+        /// <remarks>
         /// Exit codes:
         /// 0 - Success
-        /// 1 - Invalid input or file read error
+        /// 1 - Invalid input, file read error, or configuration error
         /// 2 - Regex operation timed out during note parsing
         /// 3 - JSON serialization error during order submission
         /// 4 - HTTP request was canceled or timed out during order submission
         /// 5 - HTTP error occurred during order submission
         /// 6 - Unhandled exception during submission process
-        /// </summary>
+        /// </remarks>
         private static async Task<int> Main(string[] args)
         {
             var configuration = new ConfigurationBuilder()
@@ -127,6 +134,13 @@ namespace SynapseHealth
             services.AddSingleton<INoteParser, NoteParser>();
         }
 
+        /// <summary>
+        /// Reads the physician's note file and extracts the note text, supporting both plain text and JSON formats.
+        /// Provides error handling and logging for file existence and read errors.
+        /// </summary>
+        /// <param name="filePath">Path to the physician's note file.</param>
+        /// <param name="logger">Logger for error reporting.</param>
+        /// <returns>The extracted note text, or null if an error occurs.</returns>
         private static async Task<string?> ReadNoteFileAsync(string filePath, ILogger logger)
         {
             if (!File.Exists(filePath))
@@ -154,6 +168,13 @@ namespace SynapseHealth
             }
         }
 
+        /// <summary>
+        /// Validates that required API configuration values are present.
+        /// Logs and reports any missing values.
+        /// </summary>
+        /// <param name="apiSettings">API settings to validate.</param>
+        /// <param name="logger">Logger for error reporting.</param>
+        /// <returns>True if configuration is valid; false otherwise.</returns>
         private static bool ValidateApiSettings(OrderApiSettings apiSettings, ILogger logger)
         {
             if (string.IsNullOrWhiteSpace(apiSettings.BaseUrl) || string.IsNullOrWhiteSpace(apiSettings.EndpointPath))
@@ -164,6 +185,13 @@ namespace SynapseHealth
             return true;
         }
 
+        /// <summary>
+        /// Logs an error message and writes it to the console in a consistent format.
+        /// </summary>
+        /// <param name="logger">Logger instance.</param>
+        /// <param name="message">Error message to log and display.</param>
+        /// <param name="ex">Optional exception for detailed logging.</param>
+        /// <param name="logLevel">Log level (default: Error).</param>
         private static async Task LogAndWriteErrorAsync(ILogger logger, string message, Exception? ex = null, LogLevel logLevel = LogLevel.Error)
         {
             await Console.Error.WriteLineAsync($"Error: {message}");
