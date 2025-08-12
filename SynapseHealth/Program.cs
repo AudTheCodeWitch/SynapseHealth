@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -20,6 +21,16 @@ namespace SynapseHealth
         /// </summary>
         /// <param name="args">Command-line arguments, expecting the path to the physician's note file.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the exit code.</returns>
+        /// <summary>
+        /// Exit codes:
+        /// 0 - Success
+        /// 1 - Invalid input or file read error
+        /// 2 - Regex operation timed out during note parsing
+        /// 3 - JSON serialization error during order submission
+        /// 4 - HTTP request was canceled or timed out during order submission
+        /// 5 - HTTP error occurred during order submission
+        /// 6 - Unhandled exception during submission process
+        /// </summary>
         private static async Task<int> Main(string[] args)
         {
             var configuration = new ConfigurationBuilder()
@@ -72,10 +83,35 @@ namespace SynapseHealth
                 var submissionService = serviceProvider.GetRequiredService<IOrderSubmissionService>();
                 await submissionService.SubmitOrderAsync(orderDetails);
             }
+            catch (ArgumentException ex)
+            {
+                logger.LogError(ex, "Invalid input: {Message}", ex.Message);
+                return 1;
+            }
+            catch (RegexMatchTimeoutException ex)
+            {
+                logger.LogError(ex, "Regex operation timed out during note parsing.");
+                return 2;
+            }
+            catch (System.Text.Json.JsonException ex)
+            {
+                logger.LogError(ex, "JSON serialization error during order submission: {Message}", ex.Message);
+                return 3;
+            }
+            catch (TaskCanceledException ex)
+            {
+                logger.LogError(ex, "HTTP request was canceled or timed out during order submission: {Message}", ex.Message);
+                return 4;
+            }
+            catch (HttpRequestException ex)
+            {
+                logger.LogError(ex, "HTTP error occurred during order submission: {Message}", ex.Message);
+                return 5;
+            }
             catch (Exception ex)
             {
                 logger.LogCritical(ex, "An unhandled exception occurred during the submission process.");
-                return 1; // Return a non-zero exit code to indicate failure
+                return 6;
             }
 
             logger.LogInformation("Application finished.");
