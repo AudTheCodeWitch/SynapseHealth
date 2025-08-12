@@ -55,40 +55,13 @@ namespace SynapseHealth
             var filePath = args[0];
             logger.LogInformation("Reading physician's note from {FilePath}", filePath);
 
-            // Validate input file exists before reading
-            if (!File.Exists(filePath))
-            {
-                await LogAndWriteErrorAsync(logger, $"The file '{filePath}' does not exist.");
+            var noteText = await ReadNoteFileAsync(filePath, logger);
+            if (noteText == null)
                 return 1;
-            }
 
-            string noteText;
-            try
-            {
-                var fileContent = await File.ReadAllTextAsync(filePath);
-                if (filePath.EndsWith(".json", StringComparison.OrdinalIgnoreCase) || fileContent.TrimStart().StartsWith("{"))
-                {
-                    var jsonDoc = System.Text.Json.JsonDocument.Parse(fileContent);
-                    noteText = jsonDoc.RootElement.GetProperty("data").GetString() ?? string.Empty;
-                }
-                else
-                {
-                    noteText = fileContent;
-                }
-            }
-            catch (Exception ex)
-            {
-                await LogAndWriteErrorAsync(logger, $"Could not read the note file '{filePath}'.", ex);
-                return 1;
-            }
-
-            // Validate required configuration values
             var apiSettings = serviceProvider.GetRequiredService<IOptions<OrderApiSettings>>().Value;
-            if (string.IsNullOrWhiteSpace(apiSettings.BaseUrl) || string.IsNullOrWhiteSpace(apiSettings.EndpointPath))
-            {
-                await LogAndWriteErrorAsync(logger, $"API configuration is missing required values (BaseUrl or EndpointPath). BaseUrl: '{apiSettings.BaseUrl}', EndpointPath: '{apiSettings.EndpointPath}'");
+            if (!ValidateApiSettings(apiSettings, logger))
                 return 1;
-            }
 
             try
             {
@@ -129,7 +102,7 @@ namespace SynapseHealth
                 return 6;
             }
 
-            logger.LogInformation("Application finished.");
+            logger.LogInformation("Application finished. File processed: {FilePath}", filePath);
 
             return 0;
         }
@@ -152,6 +125,43 @@ namespace SynapseHealth
 
             services.AddSingleton<IJsonSerializer, NewtonsoftJsonSerializer>();
             services.AddSingleton<INoteParser, NoteParser>();
+        }
+
+        private static async Task<string?> ReadNoteFileAsync(string filePath, ILogger logger)
+        {
+            if (!File.Exists(filePath))
+            {
+                await LogAndWriteErrorAsync(logger, $"The file '{filePath}' does not exist.");
+                return null;
+            }
+            try
+            {
+                var fileContent = await File.ReadAllTextAsync(filePath);
+                if (filePath.EndsWith(".json", StringComparison.OrdinalIgnoreCase) || fileContent.TrimStart().StartsWith("{"))
+                {
+                    var jsonDoc = System.Text.Json.JsonDocument.Parse(fileContent);
+                    return jsonDoc.RootElement.GetProperty("data").GetString() ?? string.Empty;
+                }
+                else
+                {
+                    return fileContent;
+                }
+            }
+            catch (Exception ex)
+            {
+                await LogAndWriteErrorAsync(logger, $"Could not read the note file '{filePath}'.", ex);
+                return null;
+            }
+        }
+
+        private static bool ValidateApiSettings(OrderApiSettings apiSettings, ILogger logger)
+        {
+            if (string.IsNullOrWhiteSpace(apiSettings.BaseUrl) || string.IsNullOrWhiteSpace(apiSettings.EndpointPath))
+            {
+                LogAndWriteErrorAsync(logger, $"API configuration is missing required values (BaseUrl or EndpointPath). BaseUrl: '{apiSettings.BaseUrl}', EndpointPath: '{apiSettings.EndpointPath}'").Wait();
+                return false;
+            }
+            return true;
         }
 
         private static async Task LogAndWriteErrorAsync(ILogger logger, string message, Exception? ex = null, LogLevel logLevel = LogLevel.Error)
