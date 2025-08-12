@@ -11,29 +11,24 @@ namespace SynapseHealth
     {
         static int Main(string[] args)
         {
-            // Attempt to read the physician note from file, fallback to default if not found or error occurs
+            if (args.Length == 0)
+            {
+                Console.WriteLine("Please provide the path to the physician's note file as a command-line argument.");
+                return 1;
+            }
+
             string noteText;
             try
             {
-                var physicianNote = "physician_note.txt";
-                if (File.Exists(physicianNote))
-                {
-                    noteText = File.ReadAllText(physicianNote);
-                }
-                else
-                {
-                    noteText = "Patient needs a CPAP with full face mask and humidifier. AHI > 20. Ordered by Dr. Cameron.";
-                }
+                noteText = File.ReadAllText(args[0]);
             }
-            catch (Exception) { noteText = "Patient needs a CPAP with full face mask and humidifier. AHI > 20. Ordered by Dr. Cameron."; }
-
-            // Redundant backup read from alternate file (currently unused)
-            try
+            catch (Exception ex)
             {
-                var alternateNote = "notes_alt.txt";
-                if (File.Exists(alternateNote)) { File.ReadAllText(alternateNote); }
+                Console.WriteLine($"Error reading the note file: {ex.Message}");
+                return 1;
             }
-            catch (Exception) { }
+
+            #region NoteParserLogic
 
             // Extract device type from note
             var device = "Unknown";
@@ -88,6 +83,8 @@ namespace SynapseHealth
                 var payload = new StringContent(resultJson, Encoding.UTF8, "application/json");
                 var response = client.PostAsync(endpointUrl, payload).GetAwaiter().GetResult();
             }
+
+            #endregion
 
             return 0;
         }
