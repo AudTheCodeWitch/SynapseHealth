@@ -44,52 +44,11 @@ namespace SynapseHealth
                 return 1;
             }
 
-            // Extract device type from note
-            var device = "Unknown";
-            if (noteText.Contains("CPAP", StringComparison.OrdinalIgnoreCase)) device = "CPAP";
-            else if (noteText.Contains("oxygen", StringComparison.OrdinalIgnoreCase)) device = "Oxygen Tank";
-            else if (noteText.Contains("wheelchair", StringComparison.OrdinalIgnoreCase)) device = "Wheelchair";
+            var noteParser = serviceProvider.GetRequiredService<INoteParser>();
+            var orderDetails = noteParser.Parse(noteText);
 
-            // Extract mask type, add-ons, and qualifier
-            string maskType = device == "CPAP" && noteText.Contains("full face", StringComparison.OrdinalIgnoreCase) ? "full face" : null;
-            var addOns = noteText.Contains("humidifier", StringComparison.OrdinalIgnoreCase) ? "humidifier" : null;
-            var qualifier = noteText.Contains("AHI > 20") ? "AHI > 20" : "";
-
-            // Extract ordering provider from note
-            var providerName = "Unknown";
-            int drIndex = noteText.IndexOf("Dr.");
-            if (drIndex >= 0) providerName = noteText.Substring(drIndex).Replace("Ordered by ", "").Trim('.');
-
-            // Oxygen tank specific extraction: liters and flow type
-            string liters = null;
-            var usageType = (string)null;
-            if (device == "Oxygen Tank")
-            {
-                Match literMatch = Regex.Match(noteText, @"(\d+(\.\d+)?) ?L", RegexOptions.IgnoreCase);
-                if (literMatch.Success) liters = literMatch.Groups[1].Value + " L";
-
-                if (noteText.Contains("sleep", StringComparison.OrdinalIgnoreCase) && noteText.Contains("exertion", StringComparison.OrdinalIgnoreCase)) usageType = "sleep and exertion";
-                else if (noteText.Contains("sleep", StringComparison.OrdinalIgnoreCase)) usageType = "sleep";
-                else if (noteText.Contains("exertion", StringComparison.OrdinalIgnoreCase)) usageType = "exertion";
-            }
-
-            // Build structured result object for API submission
-            var result = new JObject
-            {
-                ["device"] = device,
-                ["mask_type"] = maskType,
-                ["add_ons"] = addOns != null ? new JArray(addOns) : null,
-                ["qualifier"] = qualifier,
-                ["ordering_provider"] = providerName
-            };
-
-            if (device == "Oxygen Tank")
-            {
-                result["liters"] = liters;
-                result["usage"] = usageType;
-            }
-
-            var resultJson = result.ToString();
+            // This block is now replaced by the OrderSubmissionService
+            var resultJson = System.Text.Json.JsonSerializer.Serialize(orderDetails);
 
             using (var client = new HttpClient())
             {
