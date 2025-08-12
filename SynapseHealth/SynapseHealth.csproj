@@ -33,4 +33,14 @@
       <ProjectReference Include="..\SynapseHealth.Core\SynapseHealth.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="OriginalProgram.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="appsettings.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
