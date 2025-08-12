@@ -55,6 +55,13 @@ namespace SynapseHealth
             var filePath = args[0];
             logger.LogInformation("Reading physician's note from {FilePath}", filePath);
 
+            // Validate input file exists before reading
+            if (!File.Exists(filePath))
+            {
+                await LogAndWriteErrorAsync(logger, $"The file '{filePath}' does not exist.");
+                return 1;
+            }
+
             string noteText;
             try
             {
@@ -72,6 +79,14 @@ namespace SynapseHealth
             catch (Exception ex)
             {
                 await LogAndWriteErrorAsync(logger, $"Could not read the note file '{filePath}'.", ex);
+                return 1;
+            }
+
+            // Validate required configuration values
+            var apiSettings = serviceProvider.GetRequiredService<IOptions<OrderApiSettings>>().Value;
+            if (string.IsNullOrWhiteSpace(apiSettings.BaseUrl) || string.IsNullOrWhiteSpace(apiSettings.EndpointPath))
+            {
+                await LogAndWriteErrorAsync(logger, "API configuration is missing required values (BaseUrl or EndpointPath).");
                 return 1;
             }
 
