@@ -205,6 +205,28 @@ public class NoteParserTests
             Assert.AreEqual("CPAP", result.Device); // "CPAP" appears before "oxygen" in DeviceMappings
         }
 
+        [TestMethod]
+        public void Should_ThrowArgumentException_WhenNoteTextIsNullOrEmpty()
+        {
+            Assert.ThrowsException<ArgumentException>(() => _parser.Parse(""));
+        }
+
+        [TestMethod]
+        public void Should_ThrowRegexMatchTimeoutException_WhenRegexTimesOut()
+        {
+            var regex = new Regex("(a+)+$", RegexOptions.None, TimeSpan.FromMilliseconds(1));
+            Assert.ThrowsException<RegexMatchTimeoutException>(() =>
+                regex.Match(new string('a', 100000) + "b"));
+        }
+        
+        [TestMethod]
+        public void Should_ThrowArgumentException_WhenUnexpectedErrorOccurs()
+        {
+            var mockLogger = new Mock<ILogger<NoteParser>>();
+            var parser = new NoteParser(mockLogger.Object);
+            Assert.ThrowsException<ArgumentException>(() => parser.Parse(null!));
+        }
+
         private void VerifyLog(LogLevel level, string message)
         {
             _mockLogger.Verify(
