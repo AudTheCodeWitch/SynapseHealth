@@ -86,7 +86,7 @@ namespace SynapseHealth
             var apiSettings = serviceProvider.GetRequiredService<IOptions<OrderApiSettings>>().Value;
             if (string.IsNullOrWhiteSpace(apiSettings.BaseUrl) || string.IsNullOrWhiteSpace(apiSettings.EndpointPath))
             {
-                await LogAndWriteErrorAsync(logger, "API configuration is missing required values (BaseUrl or EndpointPath).");
+                await LogAndWriteErrorAsync(logger, $"API configuration is missing required values (BaseUrl or EndpointPath). BaseUrl: '{apiSettings.BaseUrl}', EndpointPath: '{apiSettings.EndpointPath}'");
                 return 1;
             }
 
