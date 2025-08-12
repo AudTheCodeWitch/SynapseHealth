@@ -25,6 +25,32 @@ dotnet run --project SynapseHealth/SynapseHealth.csproj -- physician_note1.txt
 
 You can also use `physician_note2.txt` for a different example.
 
+## Configuration
+The application uses an `appsettings.json` file for configuration. You can specify the API endpoint and other settings in this file. The default configuration is as follows:
+
+```json
+{
+  "OrderApiSettings": {
+    "BaseUrl": "https://alert-api.com/",
+    "EndpointPath": "DrExtract"
+  }
+}
+```
+
+## Exit Codes
+
+The application returns the following exit codes to indicate the result:
+
+| Code | Meaning                                                        |
+|------|----------------------------------------------------------------|
+| 0    | Success                                                        |
+| 1    | Invalid input, file read error, or configuration error         |
+| 2    | Regex operation timed out during note parsing                  |
+| 3    | JSON serialization error during order submission               |
+| 4    | HTTP request was canceled or timed out during order submission |
+| 5    | HTTP error occurred during order submission                    |
+| 6    | Unhandled exception during submission process                  |
+
 ## Running Tests
 
 To run the unit tests for the project:
@@ -32,6 +58,34 @@ To run the unit tests for the project:
 ```bash
 dotnet test
 ```
+
+## Test Coverage
+
+This project uses the MSTest framework for unit testing. The following areas are covered by tests:
+
+- **Services:**
+  - `NoteParser`: Comprehensive tests for parsing physician notes, including all supported devices (CPAP, Oxygen Tank, Wheelchair), missing/partial fields, multiple device keywords, edge cases, and logging of warnings/errors.
+  - `OrderSubmissionService`: Tests for successful order submission, error scenarios (HTTP errors, timeouts, serialization failures), and correct logging.
+- **Serializers:**
+  - `NewtonsoftJsonSerializer`: Tests for correct serialization of models, handling of nulls and empty objects, and compatibility with expected JSON output.
+- **Edge Cases:**
+  - Exception handling for invalid input, regex timeouts, and unexpected errors.
+  - Logging verification for warning and error paths in parsing and submission services.
+
+To run all tests:
+
+```bash
+dotnet test
+```
+
+## Features & Functionality
+
+- **Device Support:** Parses physician notes for CPAP, Oxygen Tank, and Wheelchair orders.
+- **Robust Parsing:** Uses regular expressions to extract patient name, DOB, diagnosis, device, ordering provider, and device-specific details (e.g., mask type, add-ons, AHI for CPAP; liters and usage for Oxygen Tank).
+- **Error Handling:** Gracefully handles missing fields, malformed notes, regex timeouts, and unexpected errors. Provides clear exit codes and user-friendly console messages.
+- **Logging:** Logs all parsing, submission, and error events using Microsoft.Extensions.Logging. Warnings are logged for missing fields or unrecognized devices.
+- **Configuration:** Reads API endpoint and settings from `appsettings.json`. Validates required configuration values before running.
+- **Extensible:** Easily add support for new devices or note formats by updating parsing logic and configuration.
 
 ## Assumptions
 - The physician's notes are expected to follow a specific format for the regex-based parsing to work correctly.
@@ -44,8 +98,10 @@ dotnet test
   - Ordering provider
 
 ## Limitations
-- The API endpoint for order submission is currently hardcoded in `appsettings.json`.
 - The application currently only supports parsing for CPAP, Oxygen Tank, and Wheelchair devices.
+- It does not handle multiple devices in a single note.
+- The regex patterns are designed for specific formats and may not work with all variations of physician notes.
+- The application does not validate the correctness of the extracted data beyond basic presence checks (e.g., ensuring required fields are not empty).
 
 ## Future Improvements
 - Allow multiple files to be processed in a single run.
@@ -58,4 +114,19 @@ dotnet test
 
 - **IDE**: JetBrains Rider
 - **AI Development Tools**: GitHub Copilot (Gemini 2.5 Pro)
+
+## Assessment Benchmarks
+
+### Core Requirements
+[] **Refactor logic into well-named, testable methods:** Logic is separated into services and helper methods with clear naming and structure.
+[] **Introduce logging and basic error handling:** Logging is implemented throughout, and all major error scenarios are handled gracefully.
+[] **Write at least one unit test:** Comprehensive unit tests exist for parsing, submission, and serialization logic.
+[] **Replace misleading or unclear comments with helpful ones:** Comments and XML documentation are clear and accurate.
+[] **Keep it functional:** The application reads a physician note from a file, extracts structured data, and POSTs to the API endpoint.
+
+### Stretch Goals
+[x] **Accept multiple input formats (e.g., JSON-wrapped notes):** Both plain text and JSON-wrapped notes are supported.
+[x] **Add configurability for file path or API endpoint:** File path is a CLI argument; API endpoint is configurable via appsettings.json.
+[x] **Support more DME device types or qualifiers:** CPAP, Oxygen Tank, Wheelchair, and Walking Aid (walker, cane, crutches, knee scooter) are supported.
+[ ] **Replace manual extraction logic with an LLM:**
 
