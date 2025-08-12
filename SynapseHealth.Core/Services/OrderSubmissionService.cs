@@ -51,15 +51,25 @@ namespace SynapseHealth.Core.Services
                     response.EnsureSuccessStatusCode(); // Throws HttpRequestException for non-success codes
                 }
             }
+            catch (System.Text.Json.JsonException ex)
+            {
+                logger.LogError(ex, "JSON serialization error while submitting the order.");
+                throw;
+            }
+            catch (TaskCanceledException ex)
+            {
+                logger.LogError(ex, "HTTP request was canceled or timed out while submitting the order.");
+                throw;
+            }
             catch (HttpRequestException ex)
             {
                 logger.LogError(ex, "An HTTP error occurred while submitting the order.");
-                throw; // Re-throw the exception to be handled by the caller
+                throw;
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "An unexpected error occurred while submitting the order.");
-                throw; // Re-throw for global error handling
+                throw;
             }
         }
     }

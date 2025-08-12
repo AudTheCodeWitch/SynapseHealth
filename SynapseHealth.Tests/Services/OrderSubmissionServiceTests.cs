@@ -159,5 +159,50 @@ public class OrderSubmissionServiceTests
                     It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
                 Times.Once);
         }
+
+        [TestMethod]
+        public async Task WhenRequestIsCanceled_Should_ThrowTaskCanceledExceptionAndLogError()
+        {
+            // Arrange
+            _mockHttpMessageHandler.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>()
+                )
+                .ThrowsAsync(new TaskCanceledException("Request was canceled."));
+
+            // Act & Assert
+            await Assert.ThrowsExceptionAsync<TaskCanceledException>(() => _service.SubmitOrderAsync(_orderDetails));
+
+            _mockLogger.Verify(
+                x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => v != null && v.ToString()!.Contains("HTTP request was canceled or timed out while submitting the order.")),
+                    It.IsAny<TaskCanceledException>(),
+                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+                Times.Once);
+        }
+
+        [TestMethod]
+        public async Task WhenSystemTextJsonSerializationFails_Should_ThrowJsonExceptionAndLogError()
+        {
+            // Arrange
+            _mockJsonSerializer.Setup(s => s.Serialize(It.IsAny<OrderDetails>()))
+                .Throws(new System.Text.Json.JsonException("System.Text.Json serialization failed."));
+
+            // Act & Assert
+            await Assert.ThrowsExceptionAsync<System.Text.Json.JsonException>(() => _service.SubmitOrderAsync(_orderDetails));
+
+            _mockLogger.Verify(
+                x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => v != null && v.ToString()!.Contains("JSON serialization error while submitting the order.")),
+                    It.IsAny<System.Text.Json.JsonException>(),
+                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+                Times.Once);
+        }
     }
 }
