@@ -103,7 +103,17 @@ namespace SynapseHealth
             }
             catch (HttpRequestException ex)
             {
-                await LogAndWriteErrorAsync(logger, "HTTP error occurred during order submission.", ex);
+                // Print a user-friendly message for connection errors
+                if (ex.Message.Contains("Connection refused", StringComparison.OrdinalIgnoreCase))
+                {
+                    await Console.Error.WriteLineAsync("Error: Could not connect to the API endpoint. Please check " +
+                                                       "that the API is running and the endpoint is correct.");
+                }
+                else
+                {
+                    await Console.Error.WriteLineAsync("Error: HTTP error occurred during order submission.");
+                }
+                logger.LogError(ex, "HTTP error occurred during order submission.");
                 return 5;
             }
             catch (Exception ex)
