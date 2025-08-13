@@ -3,6 +3,10 @@
 This project is a C# console application designed to parse physician's notes, extract medical equipment order details, 
 and submit them to an API.
 
+## Demo
+
+[![9e24480045f94c16aee53b1784787ea2-5b586ed9dbc16022-full-play](https://github.com/user-attachments/assets/ecd1ace5-4991-4791-97fa-d5e9e0975de3)](https://www.loom.com/share/9e24480045f94c16aee53b1784787ea2?sid=84d77999-6589-4bde-814f-18f611e37c93)
+
 ## Prerequisites
 
 - [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
