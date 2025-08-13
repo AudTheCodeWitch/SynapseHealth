@@ -85,7 +85,10 @@ device-specific details (e.g., mask type, add-ons, AHI for CPAP; liters and usag
 - **Error Handling:** Gracefully handles missing fields, malformed notes, regex timeouts, and unexpected errors. Provides 
 clear exit codes and user-friendly console messages.
 - **Logging:** Logs all parsing, submission, and error events using Microsoft.Extensions.Logging. Warnings are logged for 
-missing fields or unrecognized devices.
+missing fields or unrecognized devices. By default, this application logs to the console for easy debugging and local 
+development. In a production environment, it is recommended to direct logs to an external system like DataDog for better 
+diagnostics, monitoring, and alerting. This helps keep user-facing CLI output clean and ensures that detailed error 
+information is available for troubleshooting.
 - **Configuration:** Reads API endpoint and settings from `appsettings.json`. Validates required configuration values 
 before running.
 - **Extensible:** Easily add support for new devices or note formats by updating parsing logic and configuration.
@@ -150,4 +153,3 @@ the API endpoint.
 crutches, knee scooter) are supported.
 
 ❌ **Replace manual extraction logic with an LLM:**
-
