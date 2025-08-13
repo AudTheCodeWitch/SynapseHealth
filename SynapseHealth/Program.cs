@@ -26,7 +26,8 @@ namespace SynapseHealth
         /// - Submits the parsed order details to the API.
         /// - Handles and logs all expected error scenarios, providing user-friendly console output and exit codes.
         /// </summary>
-        /// <param name="args">Command-line arguments. Expects a single argument: the path to the physician's note file.</param>
+        /// <param name="args">Command-line arguments. Expects a single argument: the path to the physician's note file.
+        /// </param>
         /// <returns>Exit code indicating the result (see below).</returns>
         /// <remarks>
         /// Exit codes:
