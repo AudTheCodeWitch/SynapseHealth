@@ -39,7 +39,7 @@ namespace SynapseHealth.Tests.Serializers
         [TestMethod]
         public void Serialize_NullObject_ReturnsNullJson()
         {
-            string json = _serializer.Serialize<object?>(null);
+            var json = _serializer.Serialize<object?>(null);
             Assert.AreEqual("null", json);
         }
 

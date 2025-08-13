@@ -46,7 +46,8 @@ namespace SynapseHealth.Core.Services
                 else
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
-                    logger.LogError("Failed to submit order. Status: {StatusCode}. Reason: {ReasonPhrase}. Details: {ErrorContent}", 
+                    logger.LogError(
+                        "Failed to submit order. Status: {StatusCode}. Reason: {ReasonPhrase}. Details: {ErrorContent}", 
                         response.StatusCode, response.ReasonPhrase, errorContent);
                     response.EnsureSuccessStatusCode(); // Throws HttpRequestException for non-success codes
                 }

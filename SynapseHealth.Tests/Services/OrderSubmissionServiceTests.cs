@@ -154,7 +154,8 @@ public class OrderSubmissionServiceTests
                 x => x.Log(
                     LogLevel.Error,
                     It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v != null && v.ToString()!.Contains("An HTTP error occurred while submitting the order.")),
+                    It.Is<It.IsAnyType>((v,
+                        t) => v.ToString()!.Contains("An HTTP error occurred while submitting the order.")),
                     It.IsAny<HttpRequestException>(),
                     It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
                 Times.Once);
@@ -179,7 +180,9 @@ public class OrderSubmissionServiceTests
                 x => x.Log(
                     LogLevel.Error,
                     It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v != null && v.ToString()!.Contains("HTTP request was canceled or timed out while submitting the order.")),
+                    It.Is<It.IsAnyType>((v,
+                        t) => v.ToString()!.Contains(
+                        "HTTP request was canceled or timed out while submitting the order.")),
                     It.IsAny<TaskCanceledException>(),
                     It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
                 Times.Once);
@@ -199,7 +202,8 @@ public class OrderSubmissionServiceTests
                 x => x.Log(
                     LogLevel.Error,
                     It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v != null && v.ToString()!.Contains("JSON serialization error while submitting the order.")),
+                    It.Is<It.IsAnyType>((v,
+                        t) => v.ToString()!.Contains("JSON serialization error while submitting the order.")),
                     It.IsAny<System.Text.Json.JsonException>(),
                     It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
                 Times.Once);

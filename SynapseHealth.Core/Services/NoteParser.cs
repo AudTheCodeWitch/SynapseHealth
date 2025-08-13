@@ -89,7 +89,8 @@ public partial class NoteParser : INoteParser
     private void ParseDevice(string noteText, OrderDetails details)
     {
         var deviceName = DeviceMappings
-            .FirstOrDefault(mapping => noteText.Contains(mapping.Keyword, StringComparison.OrdinalIgnoreCase))
+            .FirstOrDefault(mapping => noteText.Contains(mapping.Keyword, 
+                StringComparison.OrdinalIgnoreCase))
             .DeviceName;
 
         if (deviceName is null)
@@ -110,7 +111,8 @@ public partial class NoteParser : INoteParser
 
     private void ParseOrderingProvider(string noteText, OrderDetails details)
     {
-        details.OrderingProvider = ExtractInfo(noteText, OrderingProviderRegex(), "Ordering Provider") ?? details.OrderingProvider;
+        details.OrderingProvider = ExtractInfo(noteText, OrderingProviderRegex(), "Ordering Provider") ??
+                                   details.OrderingProvider;
     }
 
     private static void ParseCpapDetails(string noteText, OrderDetails details)
@@ -129,12 +131,10 @@ public partial class NoteParser : INoteParser
         }
 
         var ahiMatch = AhiRegex().Match(noteText);
-        if (ahiMatch.Success)
-        {
-            var op = ahiMatch.Groups[1].Value;
-            var value = ahiMatch.Groups[2].Value;
-            details.Qualifier = op == ":" ? $"AHI: {value}" : $"AHI {op} {value}";
-        }
+        if (!ahiMatch.Success) return;
+        var op = ahiMatch.Groups[1].Value;
+        var value = ahiMatch.Groups[2].Value;
+        details.Qualifier = op == ":" ? $"AHI: {value}" : $"AHI {op} {value}";
     }
 
     private static void ParseOxygenDetails(string noteText, OrderDetails details)
@@ -155,7 +155,7 @@ public partial class NoteParser : INoteParser
             usageTypes.Add("exertion");
         }
 
-        if (usageTypes.Any())
+        if (usageTypes.Count != 0)
         {
             details.Usage = string.Join(" and ", usageTypes);
         }
@@ -169,7 +169,8 @@ public partial class NoteParser : INoteParser
         details.AddOns = null;
         details.Qualifier = null;
 
-        var aidType = WalkingAidTypes.FirstOrDefault(type => noteText.Contains(type, StringComparison.OrdinalIgnoreCase));
+        var aidType = WalkingAidTypes.FirstOrDefault(type => noteText.Contains(type, 
+            StringComparison.OrdinalIgnoreCase));
         if (aidType != null)
         {
             details.Qualifier = $"Type: {aidType}";

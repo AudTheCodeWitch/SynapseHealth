@@ -56,7 +56,8 @@ namespace SynapseHealth
 
             if (args.Length == 0)
             {
-                await LogAndWriteErrorAsync(logger, "Please provide the path to the physician's note file as a command-line argument.");
+                await LogAndWriteErrorAsync(logger, "Please provide the path to the physician's note file as " +
+                                                    "a command-line argument.");
                 return 1;
             }
 
@@ -96,7 +97,8 @@ namespace SynapseHealth
             }
             catch (TaskCanceledException ex)
             {
-                await LogAndWriteErrorAsync(logger, "HTTP request was canceled or timed out during order submission.", ex);
+                await LogAndWriteErrorAsync(logger, "HTTP request was canceled or timed out during order " +
+                                                    "submission.", ex);
                 return 4;
             }
             catch (HttpRequestException ex)
@@ -106,7 +108,8 @@ namespace SynapseHealth
             }
             catch (Exception ex)
             {
-                await LogAndWriteErrorAsync(logger, "An unexpected error occurred during the submission process.", ex, LogLevel.Critical);
+                await LogAndWriteErrorAsync(logger, "An unexpected error occurred during the submission process.",
+                    ex, LogLevel.Critical);
                 return 6;
             }
 
@@ -152,7 +155,7 @@ namespace SynapseHealth
             try
             {
                 var fileContent = await File.ReadAllTextAsync(filePath);
-                if (filePath.EndsWith(".json", StringComparison.OrdinalIgnoreCase) || fileContent.TrimStart().StartsWith("{"))
+                if (filePath.EndsWith(".json", StringComparison.OrdinalIgnoreCase) || fileContent.TrimStart().StartsWith('{'))
                 {
                     var jsonDoc = System.Text.Json.JsonDocument.Parse(fileContent);
                     return jsonDoc.RootElement.GetProperty("data").GetString() ?? string.Empty;
@@ -178,12 +181,11 @@ namespace SynapseHealth
         /// <returns>True if configuration is valid; false otherwise.</returns>
         private static bool ValidateApiSettings(OrderApiSettings apiSettings, ILogger logger)
         {
-            if (string.IsNullOrWhiteSpace(apiSettings.BaseUrl) || string.IsNullOrWhiteSpace(apiSettings.EndpointPath))
-            {
-                LogAndWriteErrorAsync(logger, $"API configuration is missing required values (BaseUrl or EndpointPath). BaseUrl: '{apiSettings.BaseUrl}', EndpointPath: '{apiSettings.EndpointPath}'").Wait();
-                return false;
-            }
-            return true;
+            if (!string.IsNullOrWhiteSpace(apiSettings.BaseUrl) &&
+                !string.IsNullOrWhiteSpace(apiSettings.EndpointPath)) return true;
+            LogAndWriteErrorAsync(logger, $"API configuration is missing required values (BaseUrl or EndpointPath). " +
+                                          $"BaseUrl: '{apiSettings.BaseUrl}', EndpointPath: '{apiSettings.EndpointPath}'").Wait();
+            return false;
         }
 
         /// <summary>
@@ -193,7 +195,10 @@ namespace SynapseHealth
         /// <param name="message">Error message to log and display.</param>
         /// <param name="ex">Optional exception for detailed logging.</param>
         /// <param name="logLevel">Log level (default: Error).</param>
-        private static async Task LogAndWriteErrorAsync(ILogger logger, string message, Exception? ex = null, LogLevel logLevel = LogLevel.Error)
+        private static async Task LogAndWriteErrorAsync(ILogger logger,
+            string message,
+            Exception? ex = null,
+            LogLevel logLevel = LogLevel.Error)
         {
             await Console.Error.WriteLineAsync($"Error: {message}");
             if (ex != null)
